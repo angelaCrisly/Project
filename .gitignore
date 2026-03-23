@@ -2,6 +2,8 @@
 /data_raw/
 # Archivos .db creados con las filtraciones
 /database/
-# Ignorar entorno virtual de python (pregunta bien no entendí)
+# Ignorar entorno virtual de python 
 .venv/
 __pycache__/
+# Ignorar los archivos de Duckdb
+/Duckdb/
