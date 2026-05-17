@@ -61,11 +61,8 @@ Asegúrate de ubicar los archivos CSV convertidos manualmente dentro de la carpe
 Bash
 python main.py
 4. Lanzamiento del Dashboard
-Inicia el servidor local de la aplicación web:
+Para encender el servidor de desarrollo de Flask utilizando el entorno gestionado por uv, ejecuta el siguiente comando en tu terminal:
 
 Bash
-python app.py
-Una vez que el servidor esté corriendo, abre tu navegador e ingresa a la dirección http://localhost:5000 para interactuar con los paneles y las gráficas.
-
-Repositorio
-El código fuente de este proyecto, el control de versiones y sus configuraciones se encuentran alojados y respaldados en GitHub.
+uv run flask run --debug
+Una vez que el servidor esté corriendo, abre tu navegador e ingresa a la dirección http://127.0.0.1:5000 (o la dirección local que te indique la consola) para interactuar con los paneles y las gráficas.
