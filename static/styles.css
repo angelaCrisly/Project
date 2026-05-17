@@ -1,0 +1,168 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(135deg, #1a237e, #283593);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+}
+
+.subtitulo {
+    opacity: 0.85;
+    font-size: 1rem;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* KPIs */
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* 🌟 Mejorado el mínimo para evitar desbordes en texto de KPIs */
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s ease; /* 🌟 Agregado un sutil efecto interactivo */
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+}
+
+.kpi-valor {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a237e;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Secciones de gráficos */
+.grafico-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.grafico-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #1a237e;
+    border-bottom: 2px solid #e8eaf6;
+    padding-bottom: 0.5rem;
+}
+
+.grafico {
+    width: 100%;
+    min-height: 400px;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; /* 🌟 Un poco más de espacio entre gráficos paralelos ayuda a la lectura de etiquetas */
+}
+
+/* Radar controls */
+.radar-controls {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.radar-controls label {
+    font-weight: 600;
+    color: #444;
+}
+
+.radar-controls select {
+    padding: 0.5rem 2rem 0.5rem 1rem; /* Espacio extra a la derecha para la flecha custom */
+    border: 1px solid #c5cae9; /* Color sutil acorde a la paleta azul */
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+    color: #1a237e;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    /* 🌟 Estilizado moderno para el dropdown */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.2rem;
+}
+
+.radar-controls select:focus {
+    border-color: #1a237e;
+    box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) { /* 🌟 Modificado de 768px a 992px para abarcar pantallas de tablets en formato horizontal/vertical */
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem 1rem;
+    }
+    header h1 {
+        font-size: 1.4rem;
+    }
+    .subtitulo {
+        font-size: 0.9rem;
+    }
+    .grafico-section {
+        padding: 1rem;
+    }
+}

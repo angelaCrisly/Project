@@ -1,10 +1,12 @@
 [project]
-name = "project-city"
+name = "project_icfes"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "duckdb>=1.5.0",
+    "flask>=3.1.3",
     "polars>=1.38.1",
+    "pyarrow>=24.0.0",
 ]

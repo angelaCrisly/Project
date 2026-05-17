@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICFES Saber 11 - Dashboard Analítico (2020-2024)</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>📊 Dashboard Analítico ICFES Saber 11</h1>
+        <p class="subtitulo">Análisis de resultados 2020 – 2024 | Colombia</p>
+    </header>
+   <main>
+        <section class="kpis">
+            {% for kpi in kpis %}
+            <div class="kpi-card">
+                <span class="kpi-valor">{{ kpi.valor }}</span>
+                <span class="kpi-label">{{ kpi.label }}</span>
+            </div>
+            {% endfor %}
+        </section>
+
+        <section class="grafico-section">
+            <h2>📈 Evolución Temporal de Puntajes (2020-2024)</h2>
+            <div id="grafico-tendencia" class="grafico"></div>
+        </section>
+
+        <section class="grafico-section">
+            <h2>💰 Brecha Socioeconómica por Estrato</h2>
+            <div class="grid-2">
+                <div id="grafico-estrato" class="grafico"></div>
+                <div id="grafico-libros" class="grafico"></div>
+            </div>
+        </section>
+
+        <section class="grafico-section">
+            <h2>🏙️ Comparativa Urbano vs Rural</h2>
+            <div id="grafico-urbano-rural" class="grafico"></div>
+        </section>
+
+        <section class="grafico-section">
+            <h2>🌐 Evolución del Desempeño en Inglés</h2>
+            <div id="grafico-ingles" class="grafico"></div>
+        </section>
+
+        <section class="grafico-section">
+            <h2>🗺️ Ranking de Departamentos</h2>
+            <div id="grafico-departamentos" class="grafico"></div>
+        </section>
+
+        <section class="grafico-section">
+            <h2>🎯 Perfil por Departamento vs Nacional</h2>
+            <div class="radar-controls">
+                <label for="select-depto">Departamento:</label>
+                <select id="select-depto" onchange="cargarRadar(this.value)">
+                    {% for depto in departamentos %}
+                    <option value="{{ depto }}">{{ depto }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="grafico-radar" class="grafico"></div>
+        </section>
+    </main>
+    <footer>
+        <p>Fuente: ICFES - Examen Saber 11 | Datos abiertos Colombia</p>
+    </footer>
+
+    <script>
+        // Captura de forma segura todos los análisis procesados por Python y los guarda en una variable JS
+        const datos = JSON.parse('{{ datos_json | safe }}');
+
+        // Dibuja el gráfico de líneas temporales (una línea por cada materia evaluada)
+        function renderTrend() {
+            const d = datos.trend;
+            const traces = [
+                {x: d.anio, y: d.promedio_global, name: 'Global', mode: 'lines+markers', line: {width: 3}},
+                {x: d.anio, y: d.promedio_lectura, name: 'Lectura Crítica', mode: 'lines+markers'},
+                {x: d.anio, y: d.promedio_matematicas, name: 'Matemáticas', mode: 'lines+markers'},
+                {x: d.anio, y: d.promedio_ciencias, name: 'C. Naturales', mode: 'lines+markers'},
+                {x: d.anio, y: d.promedio_sociales, name: 'Sociales', mode: 'lines+markers'},
+                {x: d.anio, y: d.promedio_ingles, name: 'Inglés', mode: 'lines+markers'},
+            ];
+            Plotly.newPlot('grafico-tendencia', traces, {
+                yaxis: {title: 'Puntaje Promedio'},
+                xaxis: {title: 'Año', dtick: 1},
+                template: 'plotly_white',
+                legend: {orientation: 'h', y: -0.2}
+            }, {responsive: true});
+        }
+
+        // Dibuja las barras de puntaje por estrato, coloreándolas automáticamente de rojo a verde según la nota
+        function renderStratum() {
+            const d = datos.stratum;
+            Plotly.newPlot('grafico-estrato', [{
+                x: d.fami_estratovivienda,
+                y: d.promedio_global,
+                type: 'bar',
+                marker: {color: d.promedio_global, colorscale: 'RdYlGn'},
+                text: d.promedio_global.map(v => v.toFixed(1)),
+                textposition: 'outside',
+                error_y: {type: 'data', array: d.desviacion_global, visible: true} // Pone las barras de error estadísticas
+            }], {
+                title: 'Puntaje Global por Estrato',
+                yaxis: {title: 'Puntaje Promedio'},
+                xaxis: {title: 'Estrato'},
+                template: 'plotly_white'
+            }, {responsive: true});
+        }
+
+        // Dibuja las barras azules para ver si tener más libros en casa influye en el puntaje
+        function renderBook() {
+            const d = datos.book;
+            Plotly.newPlot('grafico-libros', [{
+                x: d.fami_numlibros,
+                y: d.promedio_global,
+                type: 'bar',
+                marker: {color: '#2196F3'},
+                text: d.promedio_global.map(v => v.toFixed(1)),
+                textposition: 'outside'
+            }], {
+                title: 'Capital Cultural: Libros en el Hogar',
+                yaxis: {title: 'Puntaje Promedio'},
+                xaxis: {title: 'Número de Libros'},
+                template: 'plotly_white'
+            }, {responsive: true});
+        }
+
+        // Compara los puntajes de las materias agrupando las barras por zona (Urbana / Rural)
+        function renderUrbanoRural() {
+            const d = datos.urbano_rural;
+            const materias = ['promedio_lectura', 'promedio_matematicas', 'promedio_ciencias', 'promedio_sociales', 'promedio_ingles', 'promedio_global'];
+            const nombres = ['Lectura', 'Matemáticas', 'Ciencias', 'Sociales', 'Inglés', 'Global'];
+            const traces = d.cole_area_ubicacion.map((area, i) => ({
+                x: nombres,
+                y: materias.map(m => d[m][i]),
+                name: area,
+                type: 'bar',
+                text: materias.map(m => d[m][i].toFixed(1)),
+                textposition: 'outside'
+            }));
+            Plotly.newPlot('grafico-urbano-rural', traces, {
+                barmode: 'group',
+                yaxis: {title: 'Puntaje Promedio'},
+                template: 'plotly_white',
+                legend: {orientation: 'h', y: -0.15}
+            }, {responsive: true});
+        }
+
+        // Crea un gráfico de áreas apiladas que muestra cómo cambia el porcentaje de cada nivel de inglés con los años
+        function renderEnglish() {
+            const d = datos.english;
+            const anios = [...new Set(d.anio)].sort();
+            const niveles = [...new Set(d.desemp_ingles)].sort();
+            const colores = {'A-': '#d32f2f', 'A1': '#f57c00', 'A2': '#fbc02d', 'B1': '#388e3c', 'B+': '#1565c0'};
+            const traces = niveles.map(nivel => {
+                const ys = anios.map(a => {
+                    const idx = d.anio.findIndex((v, i) => v === a && d.desemp_ingles[i] === nivel);
+                    return idx >= 0 ? d.porcentaje[idx] : 0;
+                });
+                return {x: anios, y: ys, name: nivel, stackgroup: 'one', marker: {color: colores[nivel] || undefined}};
+            });
+            Plotly.newPlot('grafico-ingles', traces, {
+                yaxis: {title: 'Porcentaje (%)'},
+                xaxis: {title: 'Año', dtick: 1},
+                template: 'plotly_white',
+                legend: {orientation: 'h', y: -0.2}
+            }, {responsive: true});
+        }
+
+        // Muestra barras horizontales cruzadas: verdes para el Top 10 y rojas para el Bottom 10 de departamentos
+        function renderDepartment() {
+            const d = datos.departments; 
+            const topIdx = [], bottomIdx = [];
+            d.categoria.forEach((c, i) => { if (c === 'Top') topIdx.push(i); else bottomIdx.push(i); });
+            const traces = [
+                {
+                    y: topIdx.map(i => d.cole_depto_ubicacion[i]),
+                    x: topIdx.map(i => d.promedio_global[i]),
+                    name: 'Top 10', type: 'bar', orientation: 'h',
+                    marker: {color: '#388e3c'},
+                    text: topIdx.map(i => d.promedio_global[i].toFixed(1)),
+                    textposition: 'outside'
+                },
+                {
+                    y: bottomIdx.map(i => d.cole_depto_ubicacion[i]),
+                    x: bottomIdx.map(i => d.promedio_global[i]),
+                    name: 'Bottom 10', type: 'bar', orientation: 'h',
+                    marker: {color: '#d32f2f'},
+                    text: bottomIdx.map(i => d.promedio_global[i].toFixed(1)),
+                    textposition: 'outside'
+                }
+            ];
+            Plotly.newPlot('grafico-departamentos', traces, {
+                barmode: 'group',
+                xaxis: {title: 'Puntaje Promedio Global'},
+                height: 500,
+                template: 'plotly_white',
+                margin: {l: 150}
+            }, {responsive: true});
+        }
+
+        // Esta función va a la API del servidor, pide los datos del departamento elegido y dibuja la telaraña (radar) comparándolo con la media país
+        function cargarRadar(depto) {
+            fetch('/api/radar/' + encodeURIComponent(depto))
+                .then(r => r.json())
+                .then(d => {
+                    // Concatena el primer elemento al final para cerrar la línea de la telaraña de forma limpia
+                    const cats = d.materia.concat([d.materia[0]]);
+                    const nac = d.nacional.concat([d.nacional[0]]);
+                    const dep = d.departamento.concat([d.departamento[0]]);
+                    Plotly.newPlot('grafico-radar', [
+                        {type: 'scatterpolar', r: nac, theta: cats, fill: 'toself', name: 'Nacional', opacity: 0.5},
+                        {type: 'scatterpolar', r: dep, theta: cats, fill: 'toself', name: depto}
+                    ], {
+                        polar: {radialaxis: {visible: true, range: [30, 70]}}, // Escala estándar de puntajes del ICFES por materia
+                        template: 'plotly_white',
+                        legend: {orientation: 'h', y: -0.1}
+                    }, {responsive: true});
+                });
+        }
+
+        // Ejecuta de forma automática todas las funciones anteriores para pintar la interfaz apenas se abra la página
+        renderTrend();
+        renderStratum();
+        renderBook();
+        renderUrbanoRural();
+        renderEnglish();
+        renderDepartment();
+        
+        // Deja el gráfico de radar cargado con el primer departamento de la lista por defecto
+        if (datos.list_deptos && datos.list_deptos.length > 0) {
+            cargarRadar(datos.list_deptos[0]);
+        }
+    </script>
+</body>
+</html>

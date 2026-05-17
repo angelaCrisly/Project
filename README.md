@@ -1,60 +1,71 @@
-# **Análisis de Resultados ICFES (2020 - 2024)**
-## **Descripción del Proyecto**
-Este proyecto de investigación busca identificar problemáticas socioeconómicas y académicas en Colombia mediante el análisis de microdatos del examen Saber 11. Utilizando técnicas de Ciencia de Datos, procesamos grandes volúmenes de información para visualizar brechas de aprendizaje y tendencias temporales.
+Análisis de Resultados ICFES Saber 11 (2020-2024)
+Este proyecto consiste en un dashboard analítico interactivo diseñado para procesar y visualizar los resultados de las pruebas ICFES Saber 11 en Colombia para el periodo comprendido entre 2020 y 2024. El objetivo principal es identificar y comparar tendencias temporales, brechas socioeconómicas por estrato y capital cultural, diferencias entre la educación urbana y rural, y el desempeño general en el idioma inglés, además de un análisis detallado por departamentos.
 
-## **Tecnologías y Herramientas**
-* Entorno de Desarrollo: Visual Studio Code & Python.
+Origen de los datos
+Los datos utilizados en este análisis corresponden a los microdatos oficiales descargados de la página web del ICFES. Originalmente, la información se encontraba en archivos de texto plano (.txt) y fue convertida manualmente a archivos separados por comas (.csv) para facilitar su estructuración y lectura dentro del entorno de desarrollo.
 
-* Gestión de Rendimiento: uv (Gestor de paquetes de alta velocidad).
+Tecnologías utilizadas
+El proyecto está desarrollado sobre el entorno de Python y utiliza las siguientes herramientas:
 
-* Motor de Datos: Polars (Lazy API) para procesamiento eficiente en memoria.
+Visual Studio Code como entorno de desarrollo.
 
-* Almacenamiento Analítico: DuckDB con consultas SQL.
+uv como gestor de paquetes de última generación para la creación del entorno virtual y la administración de dependencias.
 
-* Visualización: Plotly Express para gráficos interactivos.
+Polars (utilizando LazyFrames) para la carga y limpieza eficiente de los archivos masivos de datos.
 
-* Despliegue: Flask (Backend) con HTML y CSS (Frontend).
+DuckDB como base de datos embebida para almacenar las tablas ya procesadas de forma rápida.
 
-## **Estructura del Proyecto**
-Plaintext
-project-city/
-├── data_raw/          # Microdatos CSV del ICFES (2020-2024)
-├── database/          # Base de datos relacional .db (DuckDB)
-├── static/            # Estilos CSS para la interfaz web
-├── templates/         # Vistas HTML para la app Flask
-├── main.py            # Orquestador del análisis
-├── process.py         # Lógica de limpieza y transformación
-└── .gitignore         # Archivos excluidos del control de versiones
-## **Plan de Análisis y Visualización**
-He definido cuatro ejes críticos para transformar los datos en información accionable:
+Flask como servidor web para administrar las rutas de la interfaz y los endpoints de la API.
 
-1. Brecha Socioeconómica
-[ ] Boxplot (Puntaje Global vs. Estrato): Para observar la distribución y dispersión de puntajes según el nivel económico.
+Plotly.js para la renderización de los gráficos interactivos en el navegador.
 
-[ ] Barras de Capital Cultural: Relación entre el número de libros en el hogar (fami_numlibros) y el éxito académico.
+Estructura del proyecto
+El espacio de trabajo se organiza con la siguiente estructura de carpetas y archivos:
 
-2. Comparativa Geográfica
-[ ] Histograma Urbano vs. Rural: Comparar el cole_area_ubicacion para visualizar la brecha de oportunidades.
+.venv/ - Entorno virtual administrado automáticamente por uv.
 
-[ ] Heatmaps de Correlación: Matriz de áreas (Matemáticas, Lectura, etc.) para identificar fortalezas y debilidades regionales.
+data_raw/ - Carpeta destinada a almacenar los archivos CSV que fueron convertidos manualmente desde los archivos de texto del ICFES.
 
-3. Evolución Temporal (2020 - 2024)
-[ ] Líneas de Tendencia: Seguimiento anual del promedio del puntaje global.
+database/ - Contiene el archivo icfes.db generado por DuckDB con los datos procesados.
 
-[ ] Áreas Apiladas (Inglés): Evolución de los niveles de desempeño (desemp_ingles) a través de los años.
+static/ - Aloja el archivo styles.css con las reglas de diseño de la aplicación.
 
-4. Rendimiento Específico
-[ ] Gráfico de Radar (Araña): Comparativa de materias de un departamento frente al promedio nacional.
+templates/ - Contiene el archivo dashboard.html que define la estructura de la página y el script de los gráficos.
 
-5. [ ] Scatter Plot: Relación entre Lectura Crítica y Matemáticas para identificar municipios con comportamientos atípicos.
+app.py - Servidor principal de Flask que maneja la caché y la comunicación de datos.
 
-## **Instalación y Ejecución**
-Preparar el entorno con uv:
+db_storage.py - Módulo encargado de gestionar la conexión y el almacenamiento de datos en DuckDB.
+
+main.py - Script principal que automatiza la lectura, limpieza y actualización de las tablas en la base de datos (actúa como el pipeline del proyecto).
+
+process.py - El componente lógico que aplica los filtros de Polars y calcula los promedios y estadísticas.
+
+pyproject.toml y uv.lock - Archivos de configuración y empaquetado generados por uv.
+
+Instrucciones de configuración y ejecución
+El proyecto se configuró desde cero utilizando las herramientas nativas de uv en PowerShell. Para replicar el entorno y ejecutar la aplicación, se deben seguir estos pasos:
+
+1. Inicialización del entorno
+Una vez instalado uv en el sistema, abre la carpeta del proyecto en Visual Studio Code y ejecuta en la terminal para inicializar la estructura:
 
 Bash
-uv venv
-uv pip install polars duckdb plotly flask
-Ejecutar el proceso de datos:
+uv init
+2. Instalación de dependencias
+Añade las librerías necesarias para el proyecto corriendo el siguiente comando, el cual creará el entorno virtual e instalará todo automáticamente:
 
 Bash
-uv run python main.py
+uv add polars flask duckdb pyarrow
+3. Procesamiento de los datos
+Asegúrate de ubicar los archivos CSV convertidos manualmente dentro de la carpeta data_raw. Luego, ejecuta el script principal para procesar los datos crudos y transferirlos a DuckDB:
+
+Bash
+python main.py
+4. Lanzamiento del Dashboard
+Inicia el servidor local de la aplicación web:
+
+Bash
+python app.py
+Una vez que el servidor esté corriendo, abre tu navegador e ingresa a la dirección http://localhost:5000 para interactuar con los paneles y las gráficas.
+
+Repositorio
+El código fuente de este proyecto, el control de versiones y sus configuraciones se encuentran alojados y respaldados en GitHub.
